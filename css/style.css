@@ -12,6 +12,7 @@
 .main__inner {
   display: flex;
   justify-content: space-around;
+  align-items: center;
 }
 
 .field {
@@ -81,4 +82,10 @@
 .title {
   font-size: 36px;
   letter-spacing: 2px;
+}
+
+@media only screen and (max-width: 600px) {
+  .main__inner {
+    flex-direction: column;
+  }
 }
