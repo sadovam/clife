@@ -1,0 +1,82 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 10px auto;
+}
+
+.main__inner {
+  display: flex;
+  justify-content: space-around;
+}
+
+.field {
+  background-color: gray;
+  border: 2px solid lightgray;
+  border-radius: 5px;
+  display: grid;
+}
+
+.btn {
+  background-color: #586E6E;
+  font-weight: bold;
+  font-size: 32px;
+  color: white;
+  padding: 10px 30px;
+  border-radius: 12px;
+  outline: none;
+  text-shadow: 1px 1px black;
+}
+
+.cell {
+  background-color: #586E6E;
+  border: 1px solid #394B4C;
+}
+
+.active {
+  background-color: green;
+}
+
+.dead {
+  background-color: black;
+}
+
+.born {
+  background-color: red;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  background-color: #394B4C;
+  border: 1px solid #586E6E;
+  border-radius: 15px;
+  margin: 10px;
+  padding: 10px;
+  font-family: Arial, serif;
+  max-width: 370px;
+  color: white;
+  text-shadow: 1px 1px black;
+}
+
+.rules-text {
+  text-align: center;
+}
+
+.link {
+  text-decoration: none;
+  font-size: 22px;
+  color: #39DDE1;
+  letter-spacing: 2px;
+}
+
+.title {
+  font-size: 36px;
+  letter-spacing: 2px;
+}
