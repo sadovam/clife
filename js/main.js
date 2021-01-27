@@ -2,13 +2,15 @@ document.body.onload = function() {
     const cells = [];
     makeField(20, cells);
     console.log(cells);
-    document.getElementById("next-btn").onclick = () => nextStep(cells);
+    document.getElementById("next-btn").onmousedown = () => prepareChanges(cells);
+    document.getElementById("next-btn").onmouseup = () => performChanges(cells);
     
 };
 
 function makeField(size, cells) {
   const field = document.getElementById("field");
-  const cellSize = ((window.innerHeight - 30) / size | 0) + "px";
+  const winSize = window.innerHeight < window.innerWidth ? window.innerHeight : window.innerWidth;
+  const cellSize = ((winSize - 30) / size | 0) + "px";
   field.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
 
   for (let i = 0; i < size; i++) {
