@@ -28,9 +28,8 @@ function makeField(size, cells) {
 }
  
 function setCell(cell, x, y, cells) {
-  if (cells[y][x] != 0) return;
   cell.classList.toggle("active");
-  cells[y][x] = 1;
+  cells[y][x] = cells[y][x] != 0 ? 0 : 1;
 }
 
 function nextStep(cells) {
