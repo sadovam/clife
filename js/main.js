@@ -1,10 +1,8 @@
 document.body.onload = function() {
     const cells = [];
     makeField(20, cells);
-    console.log(cells);
     document.getElementById("next-btn").onmousedown = () => prepareChanges(cells);
     document.getElementById("next-btn").onmouseup = () => performChanges(cells);
-    
 };
 
 function makeField(size, cells) {
