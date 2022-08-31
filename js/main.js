@@ -3,6 +3,7 @@ document.body.onload = function() {
     makeField(20, cells);
     document.getElementById("next-btn").onmousedown = () => prepareChanges(cells);
     document.getElementById("next-btn").onmouseup = () => performChanges(cells);
+    document.getElementById("clear-btn").onclick = () => clear(cells);
 };
 
 function makeField(size, cells) {
@@ -70,6 +71,17 @@ function performChanges(cells) {
     }
   }
 }
+
+function clear(cells) {
+  let field = document.getElementById("field");
+  for (let i = 0; i < cells.length; i++) {
+    for(let j = 0; j < cells[0].length; j++) {
+      cells[i][j] = 0;
+      field.childNodes[coordToNum(j, i, cells.length)].className = "cell";;
+    }
+  }
+}
+
 
 
 function coordToNum(x, y, width) {

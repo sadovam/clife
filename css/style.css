@@ -23,12 +23,13 @@
 }
 
 .btn {
+  margin: 7px;
   background-color: #586E6E;
   font-weight: bold;
   font-size: 32px;
   color: white;
-  padding: 10px 30px;
-  border-radius: 12px;
+  padding: 7px 22px;
+  border-radius: 8px;
   outline: none;
   text-shadow: 1px 1px black;
 }
