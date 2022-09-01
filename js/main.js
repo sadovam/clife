@@ -1,12 +1,16 @@
 document.body.onload = function() {
-    const cells = [];
-    makeField(20, cells);
+    let cells = [];
+    let size = 20;
+    makeField(size, cells);
     document.getElementById("next-btn").onmousedown = () => prepareChanges(cells);
     document.getElementById("next-btn").onmouseup = () => performChanges(cells);
     document.getElementById("clear-btn").onclick = () => clear(cells);
+    document.getElementById("inc-size-btn").onclick = () => newFieldSize(1, cells);
+    document.getElementById("dec-size-btn").onclick = () => newFieldSize(-1, cells);
 };
 
 function makeField(size, cells) {
+  //cells = [];
   const field = document.getElementById("field");
   const winSize = window.innerHeight < window.innerWidth ? window.innerHeight : window.innerWidth;
   const cellSize = ((winSize - 30) / size | 0) + "px";
@@ -98,4 +102,43 @@ function countNeighbours(cells, x, y) {
     }
   }
   return cells[y][x] > 0 ? res - 1 : res;
+}
+
+function newFieldSize(delta, cells) {
+  let field = document.getElementById("field");
+  field.innerHTML = '';
+  const winSize = window.innerHeight < window.innerWidth ? window.innerHeight : window.innerWidth;
+  const size = cells[0].length + 2 * delta;
+  const cellSize = ((winSize - 30) / size | 0) + "px";
+  field.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+  if (delta > 0) {
+    cells.push(Array(size-2).fill(0));
+    cells.unshift(Array(size-2).fill(0));
+  } else {
+    cells.pop();
+    cells.shift();
+  }
+  
+  for (let i = 0; i < size; i++) {
+    
+    if (delta > 0) {
+      cells[i].push(0);
+      cells[i].unshift(0);
+    } else {
+      cells[i].pop();
+      cells[i].shift();
+    }
+    
+    for (let j = 0; j < size; j++) {
+      let cell = document.createElement("div");
+      cell.style.width = cellSize;
+      cell.style.height = cellSize;
+      cell.className = "cell";
+      if (cells[i][j] === 1) cell.classList.toggle("active");
+      field.appendChild(cell);
+      cell.onclick = function() { setCell(cell, j, i, cells) }; 
+    }
+    
+  }
+  
 }

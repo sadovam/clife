@@ -16,6 +16,9 @@
 }
 
 .field {
+  max-width: 70%;
+  max-height: 97vh;
+  overflow:auto;
   background-color: gray;
   border: 2px solid lightgray;
   border-radius: 5px;
@@ -23,6 +26,7 @@
 }
 
 .btn {
+  min-width: 80px;
   margin: 7px;
   background-color: #586E6E;
   font-weight: bold;
@@ -35,6 +39,8 @@
 }
 
 .cell {
+  min-width: 18px;
+  min-height: 18px;
   background-color: #586E6E;
   border: 2px outset #394B4C;
   border-radius: 4px;
