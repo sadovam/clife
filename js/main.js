@@ -7,10 +7,16 @@ document.body.onload = function() {
     document.getElementById("clear-btn").onclick = () => clear(cells);
     document.getElementById("inc-size-btn").onclick = () => newFieldSize(1, cells);
     document.getElementById("dec-size-btn").onclick = () => newFieldSize(-1, cells);
+    let game = {timer: 0};
+    document.getElementById("start-btn").onclick = () => startPlaying(game, cells);
+    stopButton = document.getElementById("stop-btn");
+    stopButton.onclick = () => stopPlaying(game);
+    stopButton.disabled = true;
+
+    
 };
 
 function makeField(size, cells) {
-  //cells = [];
   const field = document.getElementById("field");
   const winSize = window.innerHeight < window.innerWidth ? window.innerHeight : window.innerWidth;
   const cellSize = ((winSize - 30) / size | 0) + "px";
@@ -39,7 +45,7 @@ function setCell(cell, x, y, cells) {
 
 function nextStep(cells) {
   prepareChanges(cells);
-  setTimeout(() => { performChanges(cells); }, 500);
+  setTimeout(() => performChanges(cells), 500);
 }
 
 function prepareChanges(cells) {
@@ -141,4 +147,16 @@ function newFieldSize(delta, cells) {
     
   }
   
+}
+
+function startPlaying(game, cells) {
+  game.timer = setInterval(() => nextStep(cells), 1000);
+  document.getElementById("start-btn").disabled = true;
+    document.getElementById("stop-btn").disabled = false;
+}
+
+function stopPlaying(game) {
+  clearInterval(game.timer);
+  document.getElementById("start-btn").disabled = false;
+    document.getElementById("stop-btn").disabled = true;;
 }

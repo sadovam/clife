@@ -39,8 +39,8 @@
 }
 
 .cell {
-  min-width: 18px;
-  min-height: 18px;
+  min-width: 8px;
+  min-height: 8px;
   background-color: #586E6E;
   border: 2px outset #394B4C;
   border-radius: 4px;
@@ -48,7 +48,7 @@
 }
 
 .active {
-  background-color: green;
+  background-color: rgb(7, 202, 7);
 }
 
 .dead {
