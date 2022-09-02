@@ -1,40 +1,42 @@
 document.body.onload = function() {
-    let cells = [];
-    let size = 20;
-    makeField(size, cells);
-    document.getElementById("next-btn").onmousedown = () => prepareChanges(cells);
-    document.getElementById("next-btn").onmouseup = () => performChanges(cells);
-    document.getElementById("clear-btn").onclick = () => clear(cells);
-    document.getElementById("inc-size-btn").onclick = () => newFieldSize(1, cells);
-    document.getElementById("dec-size-btn").onclick = () => newFieldSize(-1, cells);
-    let game = {timer: 0};
-    document.getElementById("start-btn").onclick = () => startPlaying(game, cells);
-    stopButton = document.getElementById("stop-btn");
-    stopButton.onclick = () => stopPlaying(game);
-    stopButton.disabled = true;
-
-    
+  const app = {
+    size: 20,
+    cells: [],
+    timer: 0,
+    winSize: window.innerHeight < window.innerWidth ? window.innerHeight : window.innerWidth,
+    cellSize: 0,
+    field: document.getElementById("field"),
+    startButton: document.getElementById("start-btn"),
+    stopButton: document.getElementById("stop-btn"),
+    incButton: document.getElementById("inc-size-btn"),
+    decButton: document.getElementById("dec-size-btn"),
+  };  
+  app.cellSize = ((app.winSize - 30) / app.size | 0) + "px";
+  app.field.style.gridTemplateColumns = `repeat(${app.size}, 1fr)`;
+  makeField(app);
+  document.getElementById("next-btn").onmousedown = () => changes(app, prepareCell);
+  document.getElementById("next-btn").onmouseup = () => changes(app, performCell);
+  document.getElementById("clear-btn").onclick = () => changes(app, clearCell);
+  
+  app.incButton.onclick = () => newFieldSize(1, app);
+  app.decButton.onclick = () => newFieldSize(-1, app);
+  app.startButton.onclick = () => startPlaying(app);
+  app.stopButton.onclick = () => stopPlaying(app);
+  app.stopButton.disabled = true;
 };
 
-function makeField(size, cells) {
-  const field = document.getElementById("field");
-  const winSize = window.innerHeight < window.innerWidth ? window.innerHeight : window.innerWidth;
-  const cellSize = ((winSize - 30) / size | 0) + "px";
-  field.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
-
-  for (let i = 0; i < size; i++) {
+function makeField(app) {
+  for (let i = 0; i < app.size; i++) {
     let cellsLine = [];
-    for (let j = 0; j < size; j++) {
-
+    for (let j = 0; j < app.size; j++) {
       let cell = document.createElement("div");
-      cell.style.width = cellSize;
-      cell.style.height = cellSize;
+      cell.style.width = cell.style.height = app.cellSize;
       cell.className = "cell";
-      field.appendChild(cell);
+      app.field.appendChild(cell);
       cellsLine.push(0);
-      cell.onclick = function() { setCell(cell, j, i, cells) }; 
+      cell.onclick = function() { setCell(cell, j, i, app.cells) }; 
     }
-    cells.push(cellsLine);
+    app.cells.push(cellsLine);
   }
 }
  
@@ -43,56 +45,53 @@ function setCell(cell, x, y, cells) {
   cells[y][x] = cells[y][x] != 0 ? 0 : 1;
 }
 
-function nextStep(cells) {
-  prepareChanges(cells);
-  setTimeout(() => performChanges(cells), 500);
+function nextStep(app) {
+  changes(app, prepareCell);
+  setTimeout(() => changes(app, performCell), 200);
 }
 
-function prepareChanges(cells) {
-  let field = document.getElementById("field");
-  for (let i = 0; i < cells.length; i++) {
-    for(let j = 0; j < cells[0].length; j++) {
-      let ns = countNeighbours(cells, j, i);
-      if (cells[i][j] > 0 && (ns > 3 || ns < 2)) {
-        cells[i][j] = 2;
-        field.childNodes[coordToNum(j, i, cells.length)].classList.toggle("active");
-        field.childNodes[coordToNum(j, i, cells.length)].classList.toggle("dead");
-      } else if (cells[i][j] === 0 && ns == 3) {
-        cells[i][j] = -2;
-        field.childNodes[coordToNum(j, i, cells.length)].classList.toggle("born");
-      }
+function prepareCell(node, cell, app, i, j) {
+  const neighbours = countNeighbours(app.cells, j, i);
+  if (cell > 0 && (neighbours > 3 || neighbours < 2)) {
+    node.classList.toggle("active");
+    node.classList.toggle("dead");
+    return 2;
+  } 
+  if (cell === 0 && neighbours === 3) {
+    node.classList.toggle("born");
+    return -2;
+  }
+  return cell;
+}
+
+function performCell(node, cell) {
+  if (cell === -2) {
+    node.classList.toggle("born");
+    node.classList.toggle("active");
+    return 1;
+  }
+  if (cell === 2) {
+    node.classList.toggle("dead");
+    return 0;
+  }
+  return cell;
+}
+
+function clearCell(node) {
+  node.className = "cell";
+  return 0;
+}
+
+
+function changes(app, func) {
+  let k = 0;
+  for (let i = 0; i < app.size; i++) {
+    for(let j = 0; j < app.size; j++) {
+      const node = app.field.childNodes[k++];
+      app.cells[i][j] = func(node, app.cells[i][j], app, i, j);
     }
   }
 }
-
-function performChanges(cells) {
-  let field = document.getElementById("field");
-  for (let i = 0; i < cells.length; i++) {
-    for(let j = 0; j < cells[0].length; j++) {
-      let ns = countNeighbours(cells, j, i);
-      if (cells[i][j] == 2) {
-        cells[i][j] = 0;
-        field.childNodes[coordToNum(j, i, cells.length)].classList.toggle("dead");
-      } else if (cells[i][j] == -2) {
-        cells[i][j] = 1;
-        field.childNodes[coordToNum(j, i, cells.length)].classList.toggle("born");
-        field.childNodes[coordToNum(j, i, cells.length)].classList.toggle("active");
-      }
-    }
-  }
-}
-
-function clear(cells) {
-  let field = document.getElementById("field");
-  for (let i = 0; i < cells.length; i++) {
-    for(let j = 0; j < cells[0].length; j++) {
-      cells[i][j] = 0;
-      field.childNodes[coordToNum(j, i, cells.length)].className = "cell";;
-    }
-  }
-}
-
-
 
 function coordToNum(x, y, width) {
   return y * width + x;
@@ -110,53 +109,56 @@ function countNeighbours(cells, x, y) {
   return cells[y][x] > 0 ? res - 1 : res;
 }
 
-function newFieldSize(delta, cells) {
-  let field = document.getElementById("field");
-  field.innerHTML = '';
-  const winSize = window.innerHeight < window.innerWidth ? window.innerHeight : window.innerWidth;
-  const size = cells[0].length + 2 * delta;
-  const cellSize = ((winSize - 30) / size | 0) + "px";
-  field.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+function newFieldSize(delta, app) {
+  app.field.innerHTML = '';
+  app.size += 2 * delta;
+  app.cellSize = ((app.winSize - 30) / app.size | 0) + "px";
+  app.field.style.gridTemplateColumns = `repeat(${app.size}, 1fr)`;
+  
   if (delta > 0) {
-    cells.push(Array(size-2).fill(0));
-    cells.unshift(Array(size-2).fill(0));
+    app.cells.push(Array(app.size-2).fill(0));
+    app.cells.unshift(Array(app.size-2).fill(0));
   } else {
-    cells.pop();
-    cells.shift();
+    app.cells.pop();
+    app.cells.shift();
   }
   
-  for (let i = 0; i < size; i++) {
+  for (let i = 0; i < app.size; i++) {
     
     if (delta > 0) {
-      cells[i].push(0);
-      cells[i].unshift(0);
+      app.cells[i].push(0);
+      app.cells[i].unshift(0);
     } else {
-      cells[i].pop();
-      cells[i].shift();
+      app.cells[i].pop();
+      app.cells[i].shift();
     }
     
-    for (let j = 0; j < size; j++) {
+    for (let j = 0; j < app.size; j++) {
       let cell = document.createElement("div");
-      cell.style.width = cellSize;
-      cell.style.height = cellSize;
+      cell.style.width = app.cellSize;
+      cell.style.height = app.cellSize;
       cell.className = "cell";
-      if (cells[i][j] === 1) cell.classList.toggle("active");
-      field.appendChild(cell);
-      cell.onclick = function() { setCell(cell, j, i, cells) }; 
+      if (app.cells[i][j] === 1) cell.classList.toggle("active");
+      app.field.appendChild(cell);
+      cell.onclick = function() { setCell(cell, j, i, app.cells) }; 
     }
     
   }
   
 }
 
-function startPlaying(game, cells) {
-  game.timer = setInterval(() => nextStep(cells), 1000);
-  document.getElementById("start-btn").disabled = true;
-    document.getElementById("stop-btn").disabled = false;
+function startPlaying(app) {
+  app.timer = setInterval(() => nextStep(app), 1000);
+  app.startButton.disabled = true;
+  app.stopButton.disabled = false;
+  app.incButton.disabled = true;
+  app.decButton.disabled = true;
 }
 
-function stopPlaying(game) {
-  clearInterval(game.timer);
-  document.getElementById("start-btn").disabled = false;
-    document.getElementById("stop-btn").disabled = true;;
+function stopPlaying(app) {
+  clearInterval(app.timer);
+  app.startButton.disabled = false;
+  app.stopButton.disabled = true;
+  app.incButton.disabled = false;
+  app.decButton.disabled = false;
 }
