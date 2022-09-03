@@ -5,17 +5,27 @@ document.body.onload = function() {
     timer: 0,
     winSize: window.innerHeight < window.innerWidth ? window.innerHeight : window.innerWidth,
     cellSize: 0,
+    max_coord: {
+      left: 20,
+      right: 0,
+      top: 20,
+      bottom: 0,
+    },
     field: document.getElementById("field"),
     startButton: document.getElementById("start-btn"),
     stopButton: document.getElementById("stop-btn"),
     incButton: document.getElementById("inc-size-btn"),
     decButton: document.getElementById("dec-size-btn"),
-  };  
+  };
+  
   app.cellSize = ((app.winSize - 30) / app.size | 0) + "px";
   app.field.style.gridTemplateColumns = `repeat(${app.size}, 1fr)`;
   makeField(app);
   document.getElementById("next-btn").onmousedown = () => changes(app, prepareCell);
-  document.getElementById("next-btn").onmouseup = () => changes(app, performCell);
+  document.getElementById("next-btn").onmouseup = () => {
+    changes(app, performCell);
+    testIfSizeEnough(app);
+  };
   document.getElementById("clear-btn").onclick = () => changes(app, clearCell);
   
   app.incButton.onclick = () => newFieldSize(1, app);
@@ -23,7 +33,7 @@ document.body.onload = function() {
   app.startButton.onclick = () => startPlaying(app);
   app.stopButton.onclick = () => stopPlaying(app);
   app.stopButton.disabled = true;
-};
+}
 
 function makeField(app) {
   for (let i = 0; i < app.size; i++) {
@@ -34,20 +44,44 @@ function makeField(app) {
       cell.className = "cell";
       app.field.appendChild(cell);
       cellsLine.push(0);
-      cell.onclick = function() { setCell(cell, j, i, app.cells) }; 
+      cell.onclick = function() { setCell(cell, j, i, app) }; 
     }
     app.cells.push(cellsLine);
   }
 }
  
-function setCell(cell, x, y, cells) {
+function setCell(cell, x, y, app) {
   cell.classList.toggle("active");
-  cells[y][x] = cells[y][x] != 0 ? 0 : 1;
+  app.cells[y][x] = app.cells[y][x] != 0 ? 0 : 1;
+  testMaxCoords(app, x, y);
+}
+
+function testMaxCoords(app, x, y) {
+  if (x > app.max_coord.right) app.max_coord.right = x;
+  if (x < app.max_coord.left) app.max_coord.left = x;
+  if (y > app.max_coord.bottom) app.max_coord.bottom = y;
+  if (y < app.max_coord.top) app.max_coord.top = y;
+}
+
+function testIfSizeEnough(app) {
+  if (app.max_coord.right === app.size-2 || 
+    app.max_coord.left === 1 || 
+    app.max_coord.top === 1 || 
+    app.max_coord.bottom === app.size-2) {
+      newFieldSize(1, app);
+      app.max_coord.right += 1;
+      app.max_coord.left += 1;
+      app.max_coord.top += 1;
+      app.max_coord.bottom += 1;
+    }
 }
 
 function nextStep(app) {
   changes(app, prepareCell);
-  setTimeout(() => changes(app, performCell), 200);
+  setTimeout(() => {
+    changes(app, performCell);
+    testIfSizeEnough(app);
+  }, 200);
 }
 
 function prepareCell(node, cell, app, i, j) {
@@ -59,6 +93,7 @@ function prepareCell(node, cell, app, i, j) {
   } 
   if (cell === 0 && neighbours === 3) {
     node.classList.toggle("born");
+    testMaxCoords(app, j, i);
     return -2;
   }
   return cell;
@@ -85,9 +120,9 @@ function clearCell(node) {
 
 function changes(app, func) {
   let k = 0;
-  for (let i = 0; i < app.size; i++) {
-    for(let j = 0; j < app.size; j++) {
-      const node = app.field.childNodes[k++];
+  for (let i = app.max_coord.top-1; i <= app.max_coord.bottom+1; i++) {
+    for(let j = app.max_coord.left-1; j <= app.max_coord.right+1; j++) {
+      const node = app.field.childNodes[i * app.size + j];
       app.cells[i][j] = func(node, app.cells[i][j], app, i, j);
     }
   }
@@ -140,7 +175,7 @@ function newFieldSize(delta, app) {
       cell.className = "cell";
       if (app.cells[i][j] === 1) cell.classList.toggle("active");
       app.field.appendChild(cell);
-      cell.onclick = function() { setCell(cell, j, i, app.cells) }; 
+      cell.onclick = function() { setCell(cell, j, i, app) }; 
     }
     
   }
