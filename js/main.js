@@ -40,7 +40,7 @@ function makeField(app) {
     let cellsLine = [];
     for (let j = 0; j < app.size; j++) {
       let cell = document.createElement("div");
-      cell.style.width = cell.style.height = app.cellSize;
+      // cell.style.width = cell.style.height = app.cellSize;
       cell.className = "cell";
       app.field.appendChild(cell);
       cellsLine.push(0);
